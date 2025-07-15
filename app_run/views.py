@@ -3,5 +3,8 @@ from rest_framework.decorators import api_view
 from django.conf import settings
 
 @api_view(['GET'])
-def informationView(request):
-    return Response(settings.INFORMATION)
+def company_details(request):
+    details = {'company_name': settings.COMPANY_NAME,
+               'slogan': settings.SLOGAN,
+               'contacts': settings.CONTACTS}
+    return Response(details)

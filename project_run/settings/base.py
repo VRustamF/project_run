@@ -117,8 +117,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Information about the company
 
-INFORMATION = {
-    'company_name': 'Маршрут Мечты',
-    'slogan': 'Марафон — это не просто дистанция, это путь!',
-    'contacts': 'город Москва, Проспект Пушкина, дом 3',
-}
+COMPANY_NAME = 'Маршрут Мечты'
+SLOGAN = 'Марафон — это не просто дистанция, это путь!'
+CONTACTS = 'город Москва, Проспект Пушкина, дом 3'
