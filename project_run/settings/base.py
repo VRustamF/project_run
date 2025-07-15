@@ -114,3 +114,11 @@ STATIC_ROOT = 'static'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Information about the company
+
+INFORMATION = {
+    'company_name': 'Маршрут Мечты',
+    'slogan': 'Марафон — это не просто дистанция, это путь!',
+    'contacts': 'город Москва, Проспект Пушкина, дом 3',
+}
