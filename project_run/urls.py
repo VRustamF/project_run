@@ -21,6 +21,8 @@ from django.urls import path, include
 
 from app_run.views import company_details, RunViewSet, UserViewSet
 
+from debug_toolbar.toolbar import debug_toolbar_urls
+
 router = DefaultRouter()
 router.register('api/runs', viewset=RunViewSet)
 router.register('api/users', viewset=UserViewSet)
@@ -29,4 +31,4 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/company_details/', company_details),
     path('', include(router.urls))
-]
+] + debug_toolbar_urls()
