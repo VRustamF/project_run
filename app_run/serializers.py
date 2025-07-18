@@ -6,7 +6,7 @@ from .models import Run, User
 class UserSerializerForRun(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'date_joined', 'username', 'last_name', 'first_name']
+        fields = ['id', 'username', 'last_name', 'first_name']
 
 
 class RunSerializer(serializers.ModelSerializer):
