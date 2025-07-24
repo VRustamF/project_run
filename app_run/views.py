@@ -65,7 +65,7 @@ class StopAPIView(APIView):
 
     def post(self, request, run_id):
         run = get_object_or_404(Run, id=run_id)
-        if run.status != Run.Status.INIT:
+        if run.status == Run.Status.IN_PROGRESS:
             run.status = Run.Status.FINISHED
             run.save()
             serializer = self.serializer_class(run)
