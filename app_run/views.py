@@ -1,9 +1,11 @@
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework.filters import SearchFilter
-from rest_framework import viewsets
+from rest_framework import viewsets, status
+from rest_framework.views import APIView
 
 from django.conf import settings
+from django.shortcuts import get_object_or_404
 
 from .serializers import RunSerializer, UserSerializer
 from .models import Run, User
@@ -42,3 +44,31 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
             qs = qs.filter(is_superuser=False)
         return qs
 
+
+class StartAPIView(APIView):
+    serializer_class = RunSerializer
+
+    def post(self, request, run_id):
+        run = get_object_or_404(Run, id=run_id)
+        if run.status == Run.Status.INIT:
+            run.status = Run.Status.IN_PROGRESS
+            run.save()
+            serializer = self.serializer_class(run)
+            return Response(data=serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+
+class StopAPIView(APIView):
+    serializer_class = RunSerializer
+
+    def post(self, request, run_id):
+        run = get_object_or_404(Run, id=run_id)
+        if run.status != Run.Status.INIT:
+            run.status = Run.Status.FINISHED
+            run.save()
+            serializer = self.serializer_class(run)
+            return Response(data=serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
