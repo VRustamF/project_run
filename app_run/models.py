@@ -8,3 +8,10 @@ class Run(models.Model):
     athlete = models.ForeignKey(to=User, on_delete=models.CASCADE)
     comment = models.TextField()
 
+    class Status(models.TextChoices):
+        INIT = 'init'
+        IN_PROGRESS = 'in_progress'
+        FINISHED = 'finished'
+
+    status = models.CharField(max_length=15, choices=Status.choices, default=Status.INIT)
+

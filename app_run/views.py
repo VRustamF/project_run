@@ -8,6 +8,8 @@ from django.conf import settings
 from .serializers import RunSerializer, UserSerializer
 from .models import Run, User
 
+
+
 @api_view(['GET'])
 def company_details(request):
     details = {'company_name': settings.COMPANY_NAME,
@@ -16,9 +18,11 @@ def company_details(request):
     return Response(details)
 
 
+
 class RunViewSet(viewsets.ModelViewSet):
     queryset = Run.objects.all().select_related('athlete')
     serializer_class = RunSerializer
+
 
 
 class UserViewSet(viewsets.ReadOnlyModelViewSet):

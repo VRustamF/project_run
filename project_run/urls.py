@@ -32,3 +32,7 @@ urlpatterns = [
     path('api/company_details/', company_details),
     path('', include(router.urls))
 ] + debug_toolbar_urls()
+
+
+# /api/runs/{run_id}/start/
+# /api/runs/{run_id}/stop/
