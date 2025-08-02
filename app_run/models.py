@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 
 class Run(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
-    athlete = models.ForeignKey(to=User, on_delete=models.CASCADE)
+    athlete = models.ForeignKey(to=User, on_delete=models.CASCADE, related_name='runs')
     comment = models.TextField()
 
     class Status(models.TextChoices):
