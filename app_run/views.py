@@ -104,7 +104,6 @@ class AthleteInfoAPIView(APIView):
     def put(self, request, user_id):
         user = get_object_or_404(User, id=user_id)
 
-        request.data['user'] = user.id
 
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
