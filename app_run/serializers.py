@@ -32,15 +32,13 @@ class UserSerializer(serializers.ModelSerializer):
 
 class AthleteInfoSerializer(serializers.ModelSerializer):
     user_id = serializers.SerializerMethodField()
+    weight = serializers.IntegerField()
 
     class Meta:
         model = AthleteInfo
         fields = ['goals', 'weight', 'user_id']
 
     def validate_weight(self, weight):
-        if not isinstance(weight, int):
-            raise serializers.ValidationError("Вес должен быть числом")
-
         if weight <= 0 or weight >= 900:
             raise serializers.ValidationError("Это поле должно содержать от 0 до 900 кг.")
         return weight
