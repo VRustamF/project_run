@@ -32,7 +32,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 class AthleteInfoSerializer(serializers.ModelSerializer):
     user_id = serializers.SerializerMethodField()
-    weight = serializers.IntegerField(min_value=0, max_value=900)
+    weight = serializers.IntegerField(min_value=1, max_value=899)
 
     class Meta:
         model = AthleteInfo

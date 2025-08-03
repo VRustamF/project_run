@@ -104,16 +104,11 @@ class AthleteInfoAPIView(APIView):
     def put(self, request, user_id):
         user = get_object_or_404(User, id=user_id)
 
-
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        athlete, created = AthleteInfo.objects.update_or_create(
-            user=user,
-            defaults=serializer.validated_data
-        )
+        athlete, created = AthleteInfo.objects.update_or_create(user=user, defaults=serializer.validated_data)
+        response_serializer = self.serializer_class(athlete)
+        status_code = status.HTTP_201_CREATED if created else status.HTTP_200_OK
 
-        return Response(
-            self.serializer_class(athlete).data,
-            status=status.HTTP_201_CREATED if created else status.HTTP_200_OK
-        )
+        return Response(data=response_serializer.data, status=status_code)
