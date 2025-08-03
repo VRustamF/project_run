@@ -5,6 +5,7 @@ from rest_framework import viewsets, status
 from rest_framework.views import APIView
 from rest_framework.pagination import PageNumberPagination
 
+from django.db.models import Count, Q
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 
@@ -40,7 +41,7 @@ class RunViewSet(viewsets.ModelViewSet):
 
 
 class UserViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = User.objects.all()
+    queryset = User.objects.annotate(runs_finished=Count('runs', filter=Q(runs__status='finished')))
     serializer_class = UserSerializer
     filter_backends = [SearchFilter, OrderingFilter]
     search_fields = ['first_name', 'last_name']
