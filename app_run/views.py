@@ -1,3 +1,4 @@
+from django.core.serializers import serialize
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework.filters import SearchFilter, OrderingFilter
@@ -11,8 +12,8 @@ from django.shortcuts import get_object_or_404
 
 from django_filters.rest_framework import DjangoFilterBackend
 
-from .serializers import RunSerializer, UserSerializer
-from .models import Run, User
+from .serializers import RunSerializer, UserSerializer, AthleteInfoSerializer
+from .models import Run, User, AthleteInfo
 
 
 
@@ -88,3 +89,26 @@ class StopAPIView(APIView):
             return Response(data=serializer.data, status=status.HTTP_200_OK)
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+class AthleteInfoAPIView(APIView):
+    serializer_class = AthleteInfoSerializer
+
+    def get(self, request, user_id):
+        user = get_object_or_404(User, id=user_id)
+        athlete, created = AthleteInfo.objects.get_or_create(user=user, defaults={'goals': '', 'weight': 0})
+        serializer = self.serializer_class(athlete)
+
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+    def put(self, request, user_id):
+        user = get_object_or_404(User, id=user_id)
+        athlete, created = AthleteInfo.objects.update_or_create(user=user, defaults=request.data)
+        serializer = self.serializer_class(athlete, data=request.data)
+
+        if serializer.is_valid():
+            serializer.save(user=user)
+            status_code = status.HTTP_201_CREATED if created else status.HTTP_200_OK
+            return Response(data=serializer.data, status=status_code)
+
+        return Response(status=status.HTTP_400_BAD_REQUEST)

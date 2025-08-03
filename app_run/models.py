@@ -15,3 +15,9 @@ class Run(models.Model):
 
     status = models.CharField(max_length=15, choices=Status.choices, default=Status.INIT)
 
+
+
+class AthleteInfo(models.Model):
+    goals = models.TextField(blank=True)
+    weight = models.IntegerField()
+    user = models.OneToOneField(to=User, on_delete=models.CASCADE, related_name='athlete_info')
