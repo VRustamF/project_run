@@ -1,12 +1,15 @@
 from rest_framework import serializers
 
-from .models import Run, User, AthleteInfo
+from .models import Run, User, AthleteInfo, Challenge
+
 
 
 class UserSerializerForRun(serializers.ModelSerializer):
+
     class Meta:
         model = User
         fields = ['id', 'username', 'last_name', 'first_name']
+
 
 
 class RunSerializer(serializers.ModelSerializer):
@@ -15,6 +18,7 @@ class RunSerializer(serializers.ModelSerializer):
     class Meta:
         model = Run
         fields = '__all__'
+
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -30,6 +34,7 @@ class UserSerializer(serializers.ModelSerializer):
         else: return 'athlete'
 
 
+
 class AthleteInfoSerializer(serializers.ModelSerializer):
     user_id = serializers.SerializerMethodField()
     weight = serializers.IntegerField(min_value=1, max_value=899)
@@ -40,3 +45,9 @@ class AthleteInfoSerializer(serializers.ModelSerializer):
 
     def get_user_id(self, obj):
         return obj.user.id
+
+
+class ChallengeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Challenge
+        fields = '__all__'

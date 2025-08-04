@@ -1,4 +1,3 @@
-from django.core.serializers import serialize
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework.filters import SearchFilter, OrderingFilter
@@ -12,8 +11,8 @@ from django.shortcuts import get_object_or_404
 
 from django_filters.rest_framework import DjangoFilterBackend
 
-from .serializers import RunSerializer, UserSerializer, AthleteInfoSerializer
-from .models import Run, User, AthleteInfo
+from .serializers import RunSerializer, UserSerializer, AthleteInfoSerializer, ChallengeSerializer
+from .models import Run, User, AthleteInfo, Challenge
 
 
 
@@ -80,11 +79,20 @@ class StartAPIView(APIView):
 class StopAPIView(APIView):
     serializer_class = RunSerializer
 
+    def check_challenge(self, athlete):
+        finished = athlete.runs.filter(status=Run.Status.FINISHED).count()
+        if finished == 10:
+            self.assign_challenge(athlete)
+
+    def assign_challenge(self, athlete):
+        Challenge.objects.create(full_name='Сделай 10 Забегов!', athlete=athlete)
+
     def post(self, request, run_id):
-        run = get_object_or_404(Run, id=run_id)
+        run = get_object_or_404(Run.objects.select_related('athlete'), id=run_id)
         if run.status == Run.Status.IN_PROGRESS:
             run.status = Run.Status.FINISHED
             run.save()
+            self.check_challenge(run.athlete)
             serializer = self.serializer_class(run)
             return Response(data=serializer.data, status=status.HTTP_200_OK)
         else:
@@ -112,3 +120,15 @@ class AthleteInfoAPIView(APIView):
         status_code = status.HTTP_201_CREATED if created else status.HTTP_200_OK
 
         return Response(data=response_serializer.data, status=status_code)
+
+
+class ChallengesViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Challenge.objects.all().select_related('athlete')
+    serializer_class = ChallengeSerializer
+
+    def get_queryset(self):
+        qs = self.queryset
+        athlete_id = self.request.query_params.get('athlete', None)
+        if athlete_id:
+            qs = qs.filter(athlete=athlete_id)
+        return qs
