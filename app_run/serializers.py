@@ -57,13 +57,13 @@ class ChallengeSerializer(serializers.ModelSerializer):
 class PositionSerializer(serializers.ModelSerializer):
     latitude = serializers.DecimalField(max_digits=8, decimal_places=4, min_value=-90, max_value=90)
     longitude = serializers.DecimalField(max_digits=8, decimal_places=4,min_value=-180, max_value=180)
-    run_id = serializers.IntegerField(source='run.id')
+    run = serializers.IntegerField(source='run.id')
 
     class Meta:
         model = Position
-        fields = ['id', 'latitude', 'longitude', 'run_id']
+        fields = ['id', 'latitude', 'longitude', 'run']
 
-    def validate_run_id(self, value):
+    def validate_run(self, value):
         request = self.context.get('request')
 
         if request and request.method == 'POST':
