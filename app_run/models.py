@@ -5,8 +5,9 @@ from django.contrib.auth.models import User
 
 class Run(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
-    athlete = models.ForeignKey(to=User, on_delete=models.CASCADE, related_name='runs')
     comment = models.TextField()
+    athlete = models.ForeignKey(to=User, on_delete=models.CASCADE, related_name='runs')
+
 
     class Status(models.TextChoices):
         INIT = 'init'
@@ -27,3 +28,10 @@ class AthleteInfo(models.Model):
 class Challenge(models.Model):
     full_name = models.CharField(max_length=50)
     athlete = models.ForeignKey(to=User, on_delete=models.CASCADE, related_name='challenge')
+
+
+
+class Position(models.Model):
+    latitude = models.DecimalField(max_digits=8, decimal_places=4)
+    longitude = models.DecimalField(max_digits=8, decimal_places=4)
+    run = models.ForeignKey(to=Run, on_delete=models.CASCADE, related_name='position')

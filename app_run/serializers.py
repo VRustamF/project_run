@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Run, User, AthleteInfo, Challenge
+from .models import Run, User, AthleteInfo, Challenge, Position
 
 
 
@@ -51,3 +51,28 @@ class ChallengeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Challenge
         fields = '__all__'
+
+
+
+class PositionSerializer(serializers.ModelSerializer):
+    latitude = serializers.DecimalField(max_digits=8, decimal_places=4, min_value=-90, max_value=90)
+    longitude = serializers.DecimalField(max_digits=8, decimal_places=4,min_value=-180, max_value=180)
+    run_id = serializers.IntegerField(source='run.id')
+
+    class Meta:
+        model = Position
+        fields = ['id', 'latitude', 'longitude', 'run_id']
+
+    def validate_run_id(self, value):
+        request = self.context.get('request')
+
+        if request and request.method == 'POST':
+            try:
+                run = Run.objects.get(id=value)
+            except:
+                raise serializers.ValidationError(f"Забег с ID {value} не существует")
+
+            if run.status != Run.Status.IN_PROGRESS:
+                raise serializers.ValidationError("Статус забега не 'В процессе'")
+
+        return value

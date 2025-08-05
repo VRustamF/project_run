@@ -19,7 +19,7 @@ from rest_framework.routers import DefaultRouter
 from django.contrib import admin
 from django.urls import path, include
 
-from app_run.views import company_details, RunViewSet, UserViewSet, StopAPIView, StartAPIView, AthleteInfoAPIView, ChallengesViewSet
+from app_run.views import company_details, RunViewSet, UserViewSet, StopAPIView, StartAPIView, AthleteInfoAPIView, ChallengesViewSet, PositionViewSet
 
 from debug_toolbar.toolbar import debug_toolbar_urls
 
@@ -27,6 +27,7 @@ router = DefaultRouter()
 router.register('api/runs', viewset=RunViewSet)
 router.register('api/users', viewset=UserViewSet)
 router.register('api/challenges', viewset=ChallengesViewSet)
+router.register('api/positions', viewset=PositionViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls, name='admin'),

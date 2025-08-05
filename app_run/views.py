@@ -11,8 +11,8 @@ from django.shortcuts import get_object_or_404
 
 from django_filters.rest_framework import DjangoFilterBackend
 
-from .serializers import RunSerializer, UserSerializer, AthleteInfoSerializer, ChallengeSerializer
-from .models import Run, User, AthleteInfo, Challenge
+from .serializers import RunSerializer, UserSerializer, AthleteInfoSerializer, ChallengeSerializer, PositionSerializer
+from .models import Run, User, AthleteInfo, Challenge, Position
 
 
 
@@ -131,4 +131,17 @@ class ChallengesViewSet(viewsets.ReadOnlyModelViewSet):
         athlete_id = self.request.query_params.get('athlete', None)
         if athlete_id:
             qs = qs.filter(athlete=athlete_id)
+        return qs
+
+
+
+class PositionViewSet(viewsets.ModelViewSet):
+    queryset = Position.objects.all().select_related('run')
+    serializer_class = PositionSerializer
+
+    def get_queryset(self):
+        qs = self.queryset
+        run_id = self.request.query_params.get('run', None)
+        if run_id:
+            return qs.filter(run=run_id)
         return qs
