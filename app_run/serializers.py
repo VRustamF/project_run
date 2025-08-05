@@ -57,23 +57,17 @@ class ChallengeSerializer(serializers.ModelSerializer):
 class PositionSerializer(serializers.ModelSerializer):
     latitude = serializers.DecimalField(max_digits=8, decimal_places=4, min_value=-90, max_value=90)
     longitude = serializers.DecimalField(max_digits=8, decimal_places=4,min_value=-180, max_value=180)
-    run_id = serializers.IntegerField(write_only=True)
-    run = serializers.IntegerField(source='run.id', read_only=True)
+    run = serializers.PrimaryKeyRelatedField(queryset=Run.objects.all(), write_only=True)
 
     class Meta:
         model = Position
-        fields = ['id', 'latitude', 'longitude', 'run', 'run_id']
+        fields = ['id', 'latitude', 'longitude', 'run']
 
-    def validate_run_id(self, value):
+    def validate_run(self, value):
         request = self.context.get('request')
 
         if request and request.method == 'POST':
-            try:
-                run = Run.objects.get(id=value)
-            except:
-                raise serializers.ValidationError(f"Забег с ID {value} не существует")
-
-            if run.status != Run.Status.IN_PROGRESS:
+            if value.status != Run.Status.IN_PROGRESS:
                 raise serializers.ValidationError("Статус забега не 'В процессе'")
 
         return value
