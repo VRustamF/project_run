@@ -102,7 +102,7 @@ class StopAPIView(APIView):
 
 
     def post(self, request, run_id):
-        run = get_object_or_404(Run.objects.select_related('athlete'), id=run_id)
+        run = get_object_or_404(Run.objects.select_related('athlete').prefetch_related('position'), id=run_id)
         if run.status == Run.Status.IN_PROGRESS:
             run.status = Run.Status.FINISHED
             run.distance = self.distance_calculation(run)
