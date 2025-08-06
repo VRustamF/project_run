@@ -14,6 +14,8 @@ from django_filters.rest_framework import DjangoFilterBackend
 from .serializers import RunSerializer, UserSerializer, AthleteInfoSerializer, ChallengeSerializer, PositionSerializer
 from .models import Run, User, AthleteInfo, Challenge, Position
 
+from haversine import haversine
+
 
 
 @api_view(['GET'])
@@ -87,10 +89,23 @@ class StopAPIView(APIView):
     def assign_challenge(self, athlete):
         Challenge.objects.create(full_name='Сделай 10 Забегов!', athlete=athlete)
 
+    def distance_calculation(self, run):
+        queryset = run.position.all()
+        stack = []
+        distance = 0
+        for positions in queryset:
+            current_position = (positions.latitude, positions.longitude)
+            if stack:
+                distance += haversine(stack[-1], current_position)
+            stack.append(current_position)
+        return distance
+
+
     def post(self, request, run_id):
         run = get_object_or_404(Run.objects.select_related('athlete'), id=run_id)
         if run.status == Run.Status.IN_PROGRESS:
             run.status = Run.Status.FINISHED
+            run.distance = self.distance_calculation(run)
             run.save()
             self.check_challenge(run.athlete)
             serializer = self.serializer_class(run)
