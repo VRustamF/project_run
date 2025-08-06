@@ -5,7 +5,7 @@ from rest_framework import viewsets, status
 from rest_framework.views import APIView
 from rest_framework.pagination import PageNumberPagination
 
-from django.db.models import Count, Q
+from django.db.models import Count, Q, Sum
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 
@@ -81,13 +81,18 @@ class StartAPIView(APIView):
 class StopAPIView(APIView):
     serializer_class = RunSerializer
 
-    def check_challenge(self, athlete):
+    def check_challenge_ten_runs(self, athlete):
         finished = athlete.runs.filter(status=Run.Status.FINISHED).count()
         if finished == 10:
-            self.assign_challenge(athlete)
+            self.assign_challenge(athlete, full_name='Сделай 10 Забегов!')
 
-    def assign_challenge(self, athlete):
-        Challenge.objects.create(full_name='Сделай 10 Забегов!', athlete=athlete)
+    def check_challenge_fifty_km(self, athlete):
+        total_km = athlete.runs.filter(status=Run.Status.FINISHED).aggregate(total=Sum('distance'))['total']
+        if total_km and total_km >= 50:
+            self.assign_challenge(athlete, full_name='Пробеги 50 километров!')
+
+    def assign_challenge(self, athlete, full_name):
+        Challenge.objects.create(full_name=full_name, athlete=athlete)
 
     def distance_calculation(self, run):
         queryset = run.position.all()
@@ -107,7 +112,8 @@ class StopAPIView(APIView):
             run.status = Run.Status.FINISHED
             run.distance = self.distance_calculation(run)
             run.save()
-            self.check_challenge(run.athlete)
+            self.check_challenge_ten_runs(run.athlete)
+            self.check_challenge_fifty_km(run.athlete)
             serializer = self.serializer_class(run)
             return Response(data=serializer.data, status=status.HTTP_200_OK)
         else:
