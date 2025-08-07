@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Run, User, AthleteInfo, Challenge, Position
+from .models import Run, User, AthleteInfo, Challenge, Position, CollectibleItem
 
 
 
@@ -67,5 +67,12 @@ class PositionSerializer(serializers.ModelSerializer):
         if request and request.method == 'POST':
             if value.status != Run.Status.IN_PROGRESS:
                 raise serializers.ValidationError("Статус забега не 'В процессе'")
-
         return value
+
+
+
+class CollectibleItemSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = CollectibleItem
+        fields = '__all__'

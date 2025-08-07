@@ -11,10 +11,11 @@ from django.shortcuts import get_object_or_404
 
 from django_filters.rest_framework import DjangoFilterBackend
 
-from .serializers import RunSerializer, UserSerializer, AthleteInfoSerializer, ChallengeSerializer, PositionSerializer
-from .models import Run, User, AthleteInfo, Challenge, Position
+from .serializers import RunSerializer, UserSerializer, AthleteInfoSerializer, ChallengeSerializer, PositionSerializer, CollectibleItemSerializer
+from .models import Run, User, AthleteInfo, Challenge, Position, CollectibleItem
 
 from haversine import haversine
+from openpyxl import load_workbook
 
 
 
@@ -166,3 +167,40 @@ class PositionViewSet(viewsets.ModelViewSet):
         if run_id:
             return qs.filter(run=run_id)
         return qs
+
+
+
+class CollectibleItemViewSet(viewsets.ModelViewSet):
+    queryset = CollectibleItem.objects.all()
+    serializer_class = CollectibleItemSerializer
+
+
+
+class CollectibleItemApiView(APIView):
+    serializer_class = CollectibleItemSerializer
+
+    def post(self, request):
+        file = request.FILES.get('file')
+
+        if not file:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        workbook = load_workbook(file)
+        sheet = workbook.active
+        invalid = []
+
+        for row in sheet.iter_rows(min_row=2, values_only=True):
+            data = {
+                'name': row[0],
+                'uid': row[1],
+                'value': row[2],
+                'latitude': row[3],
+                'longitude': row[4],
+                'picture': row[5],
+            }
+            serializer = self.serializer_class(data=data)
+            if serializer.is_valid():
+                serializer.save()
+            else:
+                invalid.append(list(row))
+        return Response(data=invalid)

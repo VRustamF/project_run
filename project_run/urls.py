@@ -19,7 +19,7 @@ from rest_framework.routers import DefaultRouter
 from django.contrib import admin
 from django.urls import path, include
 
-from app_run.views import company_details, RunViewSet, UserViewSet, StopAPIView, StartAPIView, AthleteInfoAPIView, ChallengesViewSet, PositionViewSet
+from app_run.views import company_details, RunViewSet, UserViewSet, StopAPIView, StartAPIView, AthleteInfoAPIView, ChallengesViewSet, PositionViewSet, CollectibleItemViewSet, CollectibleItemApiView
 
 from debug_toolbar.toolbar import debug_toolbar_urls
 
@@ -28,6 +28,7 @@ router.register('api/runs', viewset=RunViewSet)
 router.register('api/users', viewset=UserViewSet)
 router.register('api/challenges', viewset=ChallengesViewSet)
 router.register('api/positions', viewset=PositionViewSet)
+router.register('api/collectible_item', viewset=CollectibleItemViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls, name='admin'),
@@ -35,6 +36,7 @@ urlpatterns = [
     path('', include(router.urls)),
     path('api/runs/<int:run_id>/start/', StartAPIView.as_view(), name='start_run'),
     path('api/runs/<int:run_id>/stop/', StopAPIView.as_view(), name='stop_run'),
-    path('api/athlete_info/<int:user_id>/', AthleteInfoAPIView.as_view(), name='athlete_info')
+    path('api/athlete_info/<int:user_id>/', AthleteInfoAPIView.as_view(), name='athlete_info'),
+    path('api/upload_file/', CollectibleItemApiView.as_view(), name='upload_collectible_file')
 ] + debug_toolbar_urls()
 
