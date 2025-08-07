@@ -172,7 +172,7 @@ class PositionViewSet(viewsets.ModelViewSet):
         current_position = (qs.latitude, qs.longitude)
         item_position = (item.latitude, item.longitude)
         distance = haversine(item_position, current_position)
-        return True if distance <= 100 else False
+        return True if distance < 100 else False
 
 
     def get_queryset(self):
