@@ -14,7 +14,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from .serializers import RunSerializer, UserSerializer, AthleteInfoSerializer, ChallengeSerializer, PositionSerializer, CollectibleItemSerializer, UserCollectiblesSerializer
 from .models import Run, User, AthleteInfo, Challenge, Position, CollectibleItem
 
-from haversine import haversine
+from haversine import haversine, Unit
 from openpyxl import load_workbook
 
 
@@ -171,8 +171,8 @@ class PositionViewSet(viewsets.ModelViewSet):
     def check_item(self, item, qs):
         current_position = (qs.latitude, qs.longitude)
         item_position = (item.latitude, item.longitude)
-        distance = haversine(item_position, current_position)
-        return True if distance < 100 else False
+        distance = haversine(item_position, current_position, unit=Unit.METERS)
+        return distance < 100
 
 
     def get_queryset(self):
