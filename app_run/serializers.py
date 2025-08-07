@@ -80,7 +80,7 @@ class CollectibleItemSerializer(serializers.ModelSerializer):
 
 
 class UserCollectiblesSerializer(UserSerializer):
-    items = CollectibleItemSerializer(many=True, read_only=True, default=[])
+    items = CollectibleItemSerializer(many=True, read_only=True, default=[], source='collectibles')
 
     class Meta(UserSerializer.Meta):
         model = User
