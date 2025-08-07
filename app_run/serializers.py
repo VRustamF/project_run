@@ -75,4 +75,13 @@ class CollectibleItemSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CollectibleItem
-        fields = '__all__'
+        fields = ['id', 'name', 'uid', 'latitude', 'longitude', 'picture', 'value']
+
+
+
+class UserCollectiblesSerializer(UserSerializer):
+    items = CollectibleItemSerializer(many=True, read_only=True)
+
+    class Meta(UserSerializer.Meta):
+        model = User
+        fields = UserSerializer.Meta.fields + ['items']

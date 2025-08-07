@@ -11,7 +11,7 @@ from django.shortcuts import get_object_or_404
 
 from django_filters.rest_framework import DjangoFilterBackend
 
-from .serializers import RunSerializer, UserSerializer, AthleteInfoSerializer, ChallengeSerializer, PositionSerializer, CollectibleItemSerializer
+from .serializers import RunSerializer, UserSerializer, AthleteInfoSerializer, ChallengeSerializer, PositionSerializer, CollectibleItemSerializer, UserCollectiblesSerializer
 from .models import Run, User, AthleteInfo, Challenge, Position, CollectibleItem
 
 from haversine import haversine
@@ -61,6 +61,13 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
         else:
             qs = qs.filter(is_superuser=False)
         return qs
+
+    def get_serializer_class(self):
+        if self.action == 'list':
+            return UserSerializer
+        elif self.action == 'retrieve':
+            return UserCollectiblesSerializer
+        return super().get_serializer_class()
 
 
 
@@ -161,12 +168,28 @@ class PositionViewSet(viewsets.ModelViewSet):
     queryset = Position.objects.all().select_related('run')
     serializer_class = PositionSerializer
 
+    def check_item(self, item, qs):
+        current_position = (qs.latitude, qs.longitude)
+        item_position = (item.latitude, item.longitude)
+        distance = haversine(item_position, current_position)
+        return True if distance <= 100 else False
+
+
     def get_queryset(self):
         qs = self.queryset
         run_id = self.request.query_params.get('run', None)
         if run_id:
             return qs.filter(run=run_id)
         return qs
+
+    def perform_create(self, serializer):
+        serializer.save()
+        qs = self.queryset
+        athlete = qs.run.athlete
+        items = CollectibleItem.objects.all()
+        for item in items:
+            if self.check_item(item, qs):
+                item.athletes.add(athlete)
 
 
 
