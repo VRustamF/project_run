@@ -183,12 +183,11 @@ class PositionViewSet(viewsets.ModelViewSet):
         return qs
 
     def perform_create(self, serializer):
-        serializer.save()
-        qs = self.queryset
-        athlete = qs.run.athlete
+        position_instance = serializer.save()
+        athlete = position_instance.run.athlete
         items = CollectibleItem.objects.all()
         for item in items:
-            if self.check_item(item, qs):
+            if self.check_item(item, position_instance):
                 item.athletes.add(athlete)
 
 
