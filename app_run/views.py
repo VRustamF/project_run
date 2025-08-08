@@ -168,8 +168,8 @@ class PositionViewSet(viewsets.ModelViewSet):
     queryset = Position.objects.all().select_related('run')
     serializer_class = PositionSerializer
 
-    def check_item(self, item, qs):
-        current_position = (qs.latitude, qs.longitude)
+    def check_item(self, item, position_instance):
+        current_position = (position_instance.latitude, position_instance.longitude)
         item_position = (item.latitude, item.longitude)
         distance = haversine(item_position, current_position, unit=Unit.METERS)
         return distance < 100
