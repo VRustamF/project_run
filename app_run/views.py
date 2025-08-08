@@ -5,7 +5,7 @@ from rest_framework import viewsets, status
 from rest_framework.views import APIView
 from rest_framework.pagination import PageNumberPagination
 
-from django.db.models import Count, Q, Sum
+from django.db.models import Count, Q, Sum, Min, Max
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 
@@ -113,6 +113,15 @@ class StopAPIView(APIView):
             stack.append(current_position)
         return distance
 
+    def run_time(self, run):
+        agg_positions = run.position.all().aggregate(
+            first_created_pos=Min('date_time'),
+            last_created_pos=Max('date_time')
+        )
+        first_pos, last_pos = agg_positions['first_created_pos'], agg_positions['last_created_pos']
+        if first_pos and last_pos:
+            run.run_time_seconds = int((last_pos - first_pos).total_seconds())
+            run.save()
 
     def post(self, request, run_id):
         run = get_object_or_404(Run.objects.select_related('athlete').prefetch_related('position'), id=run_id)
@@ -122,6 +131,7 @@ class StopAPIView(APIView):
             run.save()
             self.check_challenge_ten_runs(run.athlete)
             self.check_challenge_fifty_km(run.athlete)
+            self.run_time(run)
             serializer = self.serializer_class(run)
             return Response(data=serializer.data, status=status.HTTP_200_OK)
         else:

@@ -7,6 +7,7 @@ class Run(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     comment = models.TextField()
     distance = models.FloatField(null=True)
+    run_time_seconds = models.IntegerField(null=True)
     athlete = models.ForeignKey(to=User, on_delete=models.CASCADE, related_name='runs')
 
 
@@ -35,6 +36,7 @@ class Challenge(models.Model):
 class Position(models.Model):
     latitude = models.DecimalField(max_digits=8, decimal_places=4)
     longitude = models.DecimalField(max_digits=8, decimal_places=4)
+    date_time = models.DateTimeField()
     run = models.ForeignKey(to=Run, on_delete=models.CASCADE, related_name='position')
 
 

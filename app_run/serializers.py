@@ -56,10 +56,11 @@ class PositionSerializer(serializers.ModelSerializer):
     latitude = serializers.DecimalField(max_digits=8, decimal_places=4, min_value=-90, max_value=90)
     longitude = serializers.DecimalField(max_digits=8, decimal_places=4,min_value=-180, max_value=180)
     run = serializers.PrimaryKeyRelatedField(queryset=Run.objects.all(), write_only=True)
+    date_time = serializers.DateTimeField(format='%Y-%m-%dT%H:%M:%S.%f')
 
     class Meta:
         model = Position
-        fields = ['id', 'latitude', 'longitude', 'run']
+        fields = ['id', 'latitude', 'longitude', 'run', 'date_time']
 
     def validate_run(self, value):
         request = self.context.get('request')
