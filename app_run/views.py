@@ -5,7 +5,7 @@ from rest_framework import viewsets, status
 from rest_framework.views import APIView
 from rest_framework.pagination import PageNumberPagination
 
-from django.db.models import Count, Q, Sum, Min, Max
+from django.db.models import Count, Q, Sum, Min, Max, Avg
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 
@@ -128,6 +128,7 @@ class StopAPIView(APIView):
         if run.status == Run.Status.IN_PROGRESS:
             run.status = Run.Status.FINISHED
             run.distance = self.distance_calculation(run)
+            run.speed = round(run.position.all().aggregate(avg_speed=Avg('speed'))['avg_speed'], 2)
             run.save()
             self.check_challenge_ten_runs(run.athlete)
             self.check_challenge_fifty_km(run.athlete)
@@ -193,6 +194,18 @@ class PositionViewSet(viewsets.ModelViewSet):
         return qs
 
     def perform_create(self, serializer):
+        qs = self.queryset.filter(run__id=serializer.validate_data['run'])
+        last_pos = qs.last()
+        if last_pos:
+            last_cords = (last_pos.latitude, last_pos.longitude)
+            last_pos_time = last_pos.date_time
+
+            current_cords = (serializer.validate_data['latitude'], serializer.validate_data['longitude'])
+            current_pos_time = (serializer.validate_data['date_time'])
+
+            serializer.validate_data['speed'] = round(haversine(last_cords, current_cords, unit=Unit.METERS) / int((current_pos_time - last_pos_time).total_seconds()), 2)
+            serializer.validate_data['distance'] += round(haversine(last_cords, current_cords), 2)
+
         position_instance = serializer.save()
         athlete = position_instance.run.athlete
         items = CollectibleItem.objects.all()

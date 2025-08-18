@@ -60,7 +60,7 @@ class PositionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Position
-        fields = ['id', 'latitude', 'longitude', 'run', 'date_time']
+        fields = ['id', 'latitude', 'longitude', 'run', 'date_time', 'speed', 'distance']
 
     def validate_run(self, value):
         request = self.context.get('request')

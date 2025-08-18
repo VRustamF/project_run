@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 class Run(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     comment = models.TextField()
+    speed = models.FloatField(null=True)
     distance = models.FloatField(null=True)
     run_time_seconds = models.IntegerField(null=True)
     athlete = models.ForeignKey(to=User, on_delete=models.CASCADE, related_name='runs')
@@ -37,6 +38,8 @@ class Position(models.Model):
     latitude = models.DecimalField(max_digits=8, decimal_places=4)
     longitude = models.DecimalField(max_digits=8, decimal_places=4)
     date_time = models.DateTimeField()
+    speed = models.FloatField(null=True)
+    distance = models.FloatField(null=True)
     run = models.ForeignKey(to=Run, on_delete=models.CASCADE, related_name='position')
 
 
