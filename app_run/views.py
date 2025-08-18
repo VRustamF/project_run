@@ -194,7 +194,7 @@ class PositionViewSet(viewsets.ModelViewSet):
         return qs
 
     def perform_create(self, serializer):
-        qs = self.queryset.filter(run__id=serializer.validated_data['run'])
+        qs = self.queryset.filter(run__id=serializer.validated_data['run'].id)
         last_pos = qs.last()
         if last_pos:
             last_cords = (last_pos.latitude, last_pos.longitude)
