@@ -194,17 +194,17 @@ class PositionViewSet(viewsets.ModelViewSet):
         return qs
 
     def perform_create(self, serializer):
-        qs = self.queryset.filter(run__id=serializer.validate_data['run'])
+        qs = self.queryset.filter(run__id=serializer.validated_data['run'])
         last_pos = qs.last()
         if last_pos:
             last_cords = (last_pos.latitude, last_pos.longitude)
             last_pos_time = last_pos.date_time
 
-            current_cords = (serializer.validate_data['latitude'], serializer.validate_data['longitude'])
-            current_pos_time = (serializer.validate_data['date_time'])
+            current_cords = (serializer.validated_data['latitude'], serializer.validated_data['longitude'])
+            current_pos_time = (serializer.validated_data['date_time'])
 
-            serializer.validate_data['speed'] = round(haversine(last_cords, current_cords, unit=Unit.METERS) / int((current_pos_time - last_pos_time).total_seconds()), 2)
-            serializer.validate_data['distance'] += round(haversine(last_cords, current_cords), 2)
+            serializer.validated_data['speed'] = round(haversine(last_cords, current_cords, unit=Unit.METERS) / int((current_pos_time - last_pos_time).total_seconds()), 2)
+            serializer.validated_data['distance'] += round(haversine(last_cords, current_cords), 2)
 
         position_instance = serializer.save()
         athlete = position_instance.run.athlete
