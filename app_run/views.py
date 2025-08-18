@@ -197,7 +197,7 @@ class PositionViewSet(viewsets.ModelViewSet):
         qs = self.queryset.filter(run__id=serializer.validated_data['run'].id)
         last_pos = qs.last()
 
-        speed = None
+        speed = 0
         distance = 0
 
         if last_pos:
