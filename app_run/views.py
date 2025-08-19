@@ -99,6 +99,11 @@ class StopAPIView(APIView):
         if total_km and total_km >= 50:
             self.assign_challenge(athlete, full_name='Пробеги 50 километров!')
 
+    def chech_chellenge_twokm_tenmin(self, run):
+        if run.distance >= 2 and run.run_time_seconds <= 600:
+            athlete = run.athlete
+            self.assign_challenge(athlete, full_name='2 километра за 10 минут!')
+
     def assign_challenge(self, athlete, full_name):
         Challenge.objects.create(full_name=full_name, athlete=athlete)
 
@@ -133,6 +138,7 @@ class StopAPIView(APIView):
             self.check_challenge_ten_runs(run.athlete)
             self.check_challenge_fifty_km(run.athlete)
             self.run_time(run)
+            self.chech_chellenge_twokm_tenmin(run)
             serializer = self.serializer_class(run)
             return Response(data=serializer.data, status=status.HTTP_200_OK)
         else:
