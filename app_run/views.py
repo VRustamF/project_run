@@ -197,8 +197,7 @@ class PositionViewSet(viewsets.ModelViewSet):
         qs = self.queryset.filter(run__id=serializer.validated_data['run'].id)
         last_pos = qs.last()
 
-        speed = 0
-        distance = 0
+        speed, final_distance = 0, 0
 
         if last_pos:
             last_cords = (last_pos.latitude, last_pos.longitude)
@@ -207,10 +206,12 @@ class PositionViewSet(viewsets.ModelViewSet):
             current_cords = (serializer.validated_data['latitude'], serializer.validated_data['longitude'])
             current_pos_time = (serializer.validated_data['date_time'])
 
-            speed = round(haversine(last_cords, current_cords, unit=Unit.METERS) / int((current_pos_time - last_pos_time).total_seconds()), 2)
-            distance = (last_pos.distance or 0) + round(haversine(last_cords, current_cords), 2)
+            distance = haversine(last_cords, current_cords, unit=Unit.METERS)
+            time = int((current_pos_time - last_pos_time).total_seconds())
+            speed = round(distance / time, 2)
+            final_distance = (last_pos.distance or 0) + round(haversine(last_cords, current_cords), 2)
 
-        position_instance = serializer.save(speed=speed, distance=distance)
+        position_instance = serializer.save(speed=speed, distance=final_distance)
         athlete = position_instance.run.athlete
         items = CollectibleItem.objects.all()
         for item in items:
