@@ -288,7 +288,10 @@ class SubscribeAPIView(APIView):
         if athlete.is_staff:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
-        subscribe = Subscribe.objects.create(coach=coach, athlete=athlete)
+        subscribe, created = Subscribe.objects.get_or_create(coach=coach, athlete=athlete)
 
-        serializer = self.serializer_class(subscribe)
-        return Response(data=serializer.data, status=status.HTTP_200_OK)
+        if created:
+            serializer = self.serializer_class(subscribe)
+            return Response(data=serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
