@@ -280,7 +280,7 @@ class SubscribeAPIView(APIView):
         queryset = User.objects.filter(is_superuser=False)
         coach = get_object_or_404(queryset, id=coach_id)
         if not coach.is_staff:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
         athlete_id = request.data.get('athlete')
         try:
