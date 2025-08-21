@@ -99,7 +99,7 @@ class AthletesSubscriptionsSerializer(UserCollectiblesSerializer):
 
     def get_coach(self, obj):
         sub = Subscribe.objects.filter(athlete_id=obj.id).last()
-        return sub.coach_id
+        return sub.coach_id if sub else None
 
 
 

@@ -68,11 +68,9 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
         if self.action == 'list':
             return UserSerializer
         elif self.action == 'retrieve':
-            user_id = self.get_object()
-            qs = self.queryset
-            user = get_object_or_404(qs, id=user_id)
+            user = self.get_object()
 
-            if user.is_stuff:
+            if user.is_staff:
                 return CoachFollowersSerializer
             else:
                 return AthletesSubscriptionsSerializer
