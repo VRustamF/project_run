@@ -11,8 +11,10 @@ from django.shortcuts import get_object_or_404
 
 from django_filters.rest_framework import DjangoFilterBackend
 
-from .serializers import RunSerializer, UserSerializer, AthleteInfoSerializer, ChallengeSerializer, PositionSerializer, CollectibleItemSerializer, UserCollectiblesSerializer
-from .models import Run, User, AthleteInfo, Challenge, Position, CollectibleItem
+from .serializers import (RunSerializer, UserSerializer, AthleteInfoSerializer, ChallengeSerializer, PositionSerializer,
+                          CollectibleItemSerializer, UserCollectiblesSerializer, SubscribeSerializer,
+                          AthletesSubscriptionsSerializer, CoachFollowersSerializer)
+from .models import Run, User, AthleteInfo, Challenge, Position, CollectibleItem, Subscribe
 
 from haversine import haversine, Unit
 from openpyxl import load_workbook
@@ -66,7 +68,15 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
         if self.action == 'list':
             return UserSerializer
         elif self.action == 'retrieve':
-            return UserCollectiblesSerializer
+            user_id = self.get_object()
+            qs = self.queryset
+            user = get_object_or_404(qs, id=user_id)
+
+            if user.is_stuff:
+                return CoachFollowersSerializer
+            else:
+                return AthletesSubscriptionsSerializer
+
         return super().get_serializer_class()
 
 
@@ -232,7 +242,7 @@ class CollectibleItemViewSet(viewsets.ModelViewSet):
 
 
 
-class CollectibleItemApiView(APIView):
+class CollectibleItemAPIView(APIView):
     serializer_class = CollectibleItemSerializer
 
     def post(self, request):
@@ -260,3 +270,27 @@ class CollectibleItemApiView(APIView):
             else:
                 invalid.append(list(row))
         return Response(data=invalid)
+
+
+
+class SubscribeAPIView(APIView):
+    serializer_class = SubscribeSerializer
+
+    def post(self, request, coach_id=None):
+        queryset = User.objects.filter(is_superuser=False)
+        coach = get_object_or_404(queryset, id=coach_id)
+        if not coach.is_staff:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        athlete_id = request.data.get('athlete')
+        try:
+            athlete = queryset.get(id=athlete_id)
+        except User.DoesNotExist:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        if athlete.is_staff:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        subscribe = Subscribe.objects.create(coach=coach, athlete=athlete)
+
+        serializer = self.serializer_class(subscribe)
+        return Response(data=serializer.data, status=status.HTTP_200_OK)

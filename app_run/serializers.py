@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Run, User, AthleteInfo, Challenge, Position, CollectibleItem
+from .models import Run, User, AthleteInfo, Challenge, Position, CollectibleItem, Subscribe
 
 
 
@@ -87,3 +87,36 @@ class UserCollectiblesSerializer(UserSerializer):
     class Meta(UserSerializer.Meta):
         model = User
         fields = UserSerializer.Meta.fields + ['items']
+
+
+
+class AthletesSubscriptionsSerializer(UserCollectiblesSerializer):
+    coach = serializers.SerializerMethodField()
+
+    class Meta(UserCollectiblesSerializer.Meta):
+        model = User
+        fields = UserCollectiblesSerializer.Meta.fields + ['coach']
+
+    def get_coach(self, obj):
+        sub = Subscribe.objects.filter(athlete_id=obj.id).last()
+        return sub.coach_id
+
+
+
+class CoachFollowersSerializer(UserCollectiblesSerializer):
+    athletes = serializers.SerializerMethodField()
+
+    class Meta(UserCollectiblesSerializer.Meta):
+        model = User
+        fields = UserCollectiblesSerializer.Meta.fields + ['athletes']
+
+    def get_athletes(self, obj):
+        athletes = Subscribe.objects.filter(coach_id=obj.id).values_list('athlete_id', flat=True)
+        return list(athletes)
+
+
+
+class SubscribeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Subscribe
+        fields = '__all__'

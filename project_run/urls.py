@@ -19,7 +19,9 @@ from rest_framework.routers import DefaultRouter
 from django.contrib import admin
 from django.urls import path, include
 
-from app_run.views import company_details, RunViewSet, UserViewSet, StopAPIView, StartAPIView, AthleteInfoAPIView, ChallengesViewSet, PositionViewSet, CollectibleItemViewSet, CollectibleItemApiView
+from app_run.views import (company_details, RunViewSet, UserViewSet, StopAPIView, StartAPIView, AthleteInfoAPIView,
+                           ChallengesViewSet, PositionViewSet, CollectibleItemViewSet, CollectibleItemAPIView,
+                           SubscribeAPIView)
 
 from debug_toolbar.toolbar import debug_toolbar_urls
 
@@ -37,6 +39,7 @@ urlpatterns = [
     path('api/runs/<int:run_id>/start/', StartAPIView.as_view(), name='start_run'),
     path('api/runs/<int:run_id>/stop/', StopAPIView.as_view(), name='stop_run'),
     path('api/athlete_info/<int:user_id>/', AthleteInfoAPIView.as_view(), name='athlete_info'),
-    path('api/upload_file/', CollectibleItemApiView.as_view(), name='upload_collectible_file')
+    path('api/upload_file/', CollectibleItemAPIView.as_view(), name='upload_collectible_file'),
+    path('api/subscribe_to_coach/<int:coach_id>/', SubscribeAPIView.as_view(), name='subscribe_to_coach'),
 ] + debug_toolbar_urls()
 
