@@ -21,16 +21,17 @@ from django.urls import path, include
 
 from app_run.views import (company_details, RunViewSet, UserViewSet, StopAPIView, StartAPIView, AthleteInfoAPIView,
                            ChallengesViewSet, PositionViewSet, CollectibleItemViewSet, CollectibleItemAPIView,
-                           SubscribeAPIView)
+                           SubscribeAPIView, ChallengesSummaryViewSet)
 
 from debug_toolbar.toolbar import debug_toolbar_urls
 
 router = DefaultRouter()
 router.register('api/runs', viewset=RunViewSet)
 router.register('api/users', viewset=UserViewSet)
-router.register('api/challenges', viewset=ChallengesViewSet)
+router.register('api/challenges', viewset=ChallengesViewSet, basename='challenges')
 router.register('api/positions', viewset=PositionViewSet)
 router.register('api/collectible_item', viewset=CollectibleItemViewSet)
+router.register('api/challenges_summary', viewset=ChallengesSummaryViewSet, basename='challenges_summary')
 
 urlpatterns = [
     path('admin/', admin.site.urls, name='admin'),

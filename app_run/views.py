@@ -12,8 +12,8 @@ from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 
 from .serializers import (RunSerializer, UserSerializer, AthleteInfoSerializer, ChallengeSerializer, PositionSerializer,
-                          CollectibleItemSerializer, UserCollectiblesSerializer, SubscribeSerializer,
-                          AthletesSubscriptionsSerializer, CoachFollowersSerializer)
+                          CollectibleItemSerializer, SubscribeSerializer,
+                          AthletesSubscriptionsSerializer, CoachFollowersSerializer, ChallengesSummarySerializer)
 from .models import Run, User, AthleteInfo, Challenge, Position, CollectibleItem, Subscribe
 
 from haversine import haversine, Unit
@@ -295,3 +295,9 @@ class SubscribeAPIView(APIView):
             return Response(data=serializer.data, status=status.HTTP_200_OK)
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+
+class ChallengesSummaryViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Challenge.objects.all().select_related('athlete')
+    serializer_class = ChallengesSummarySerializer
