@@ -120,27 +120,3 @@ class SubscribeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Subscribe
         fields = '__all__'
-
-
-
-class AthleteForChallengeSerializer(serializers.ModelSerializer):
-    full_name = serializers.SerializerMethodField()
-
-    class Meta:
-        model = User
-        fields = ['id', 'full_name', 'username']
-
-    def get_full_name(self, obj):
-        return f'{obj.first_name} {obj.last_name}'
-
-
-class ChallengesSummarySerializer(serializers.ModelSerializer):
-    name_to_display = serializers.SerializerMethodField()
-    athletes = AthleteForChallengeSerializer(read_only=True)
-
-    class Meta:
-        model = Challenge
-        fields = ['name_to_display', 'athletes']
-
-    def get_name_to_display(self, obj):
-        return obj.full_name

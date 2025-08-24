@@ -13,7 +13,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 
 from .serializers import (RunSerializer, UserSerializer, AthleteInfoSerializer, ChallengeSerializer, PositionSerializer,
                           CollectibleItemSerializer, SubscribeSerializer,
-                          AthletesSubscriptionsSerializer, CoachFollowersSerializer, ChallengesSummarySerializer)
+                          AthletesSubscriptionsSerializer, CoachFollowersSerializer)
 from .models import Run, User, AthleteInfo, Challenge, Position, CollectibleItem, Subscribe
 
 from haversine import haversine, Unit
@@ -300,5 +300,20 @@ class SubscribeAPIView(APIView):
 
 
 class ChallengesSummaryViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Challenge.objects.all().select_related('athlete')
-    serializer_class = ChallengesSummarySerializer
+    def list(self, request, *args, **kwargs):
+        queryset = Challenge.objects.all().select_related('athlete')
+
+        result = {}
+        for challenge in queryset:
+            athlete = challenge.athlete
+            challenge_name = challenge.full_name
+            athlete_info = {
+                'id': athlete.id,
+                'full_name': f'{athlete.first_name} {athlete.last_name}',
+                'username': athlete.username
+            }
+            result.setdefault(challenge_name, {'name_to_display': challenge_name, 'athletes':[]})
+            result[challenge_name]['athletes'].append(athlete_info)
+
+        return Response(list(result.values()))
+
