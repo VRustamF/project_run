@@ -141,7 +141,8 @@ class StopAPIView(APIView):
         if run.status == Run.Status.IN_PROGRESS:
             run.status = Run.Status.FINISHED
             run.distance = self.distance_calculation(run)
-            run.speed = round(run.position.all().aggregate(avg_speed=Avg('speed'))['avg_speed'], 2)
+            avg_speed = run.position.all().aggregate(avg_speed=Avg('speed'))['avg_speed']
+            run.speed = round(avg_speed if avg_speed else 0, 2)
             run.save()
             self.check_challenge_ten_runs(run.athlete)
             self.check_challenge_fifty_km(run.athlete)
