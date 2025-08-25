@@ -326,13 +326,15 @@ class RateCoachAPIView(APIView):
         users = User.objects.all()
         athlete_id = request.data.get('athlete')
         rating = request.data.get('rating')
+        if not athlete_id:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
         coach = get_object_or_404(users, id=coach_id, is_staff=True)
 
         try:
             athlete = users.get(id=athlete_id, is_staff=False)
         except User.DoesNotExist:
-            return Response(status.HTTP_400_BAD_REQUEST)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
         subscribe = subscribes.filter(athlete=athlete, coach=coach).first()
 
