@@ -317,3 +317,21 @@ class ChallengesSummaryViewSet(viewsets.ReadOnlyModelViewSet):
 
         return Response(list(result.values()))
 
+
+
+class RateCoachAPIView(APIView):
+
+    def post(self, request, coach_id=None):
+        subscribes = Subscribe.objects.all().select_related('athlete').select_related('coach')
+        users = User.objects.all()
+        athlete_id = request.data.get('athlete')
+        rating = request.data.get('rating')
+
+        if users.filter(id=coach_id, is_staff=True).exists() and users.filter(id=athlete_id, is_staff=False).exists():
+            subscribe = subscribes.filter(athlete=athlete_id, coach=coach_id).exists()
+            if subscribe or 0 < rating <= 5:
+                subscribe.rating = rating
+            else:
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response(status=status.HTTP_404_NOT_FOUND)

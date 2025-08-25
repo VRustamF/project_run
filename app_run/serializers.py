@@ -1,5 +1,7 @@
 from rest_framework import serializers
 
+from django.db.models import Avg
+
 from .models import Run, User, AthleteInfo, Challenge, Position, CollectibleItem, Subscribe
 
 
@@ -24,15 +26,19 @@ class RunSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     type = serializers.SerializerMethodField()
     runs_finished = serializers.IntegerField()
+    rating = serializers.IntegerField()
 
     class Meta:
         model = User
-        fields = ['id', 'date_joined', 'username', 'last_name', 'first_name', 'type', 'runs_finished']
+        fields = ['id', 'date_joined', 'username', 'last_name', 'first_name', 'type', 'runs_finished', 'rating']
 
     def get_type(self, obj):
         if obj.is_staff: return 'coach'
         else: return 'athlete'
 
+    def get_rating(self, obj):
+        rating = Subscribe.objects.filter(coach=obj).aggregate(avg_rating=Avg('rating'))['avg_rating']
+        return rating
 
 
 class AthleteInfoSerializer(serializers.ModelSerializer):
