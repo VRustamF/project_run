@@ -327,14 +327,11 @@ class RateCoachAPIView(APIView):
         athlete_id = request.data.get('athlete')
         rating = request.data.get('rating')
 
-        try:
-            coach = users.get(id=coach_id, is_staff=True)
+        coach = get_object_or_404(users, id=coach_id, is_staff=True)
+        if users.get(id=athlete_id, is_staff=False):
             athlete = users.get(id=athlete_id, is_staff=False)
-        except User.DoesNotExist:
-            return Response(
-                {"error": "Coach or athlete not found or invalid roles"},
-                status=status.HTTP_404_NOT_FOUND
-            )
+        else:
+            return Response(status.HTTP_400_BAD_REQUEST)
 
         subscribe = subscribes.filter(athlete=athlete, coach=coach).first()
 
