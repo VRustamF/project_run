@@ -46,7 +46,7 @@ class RunViewSet(viewsets.ModelViewSet):
 
 
 class UserViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = User.objects.annotate(runs_finished=Count('runs', filter=Q(runs__status='finished')))
+    queryset = User.objects.annotate(runs_finished=Count('runs', filter=Q(runs__status='finished')), rating=Avg('coach__rating'))
     serializer_class = UserSerializer
     filter_backends = [SearchFilter, OrderingFilter]
     search_fields = ['first_name', 'last_name']
@@ -323,11 +323,11 @@ class RateCoachAPIView(APIView):
 
     def post(self, request, coach_id=None):
         subscribes = Subscribe.objects.all().select_related('athlete').select_related('coach')
-        users = User.objects.all()
         athlete_id = request.data.get('athlete')
         rating = request.data.get('rating')
         if not athlete_id:
             return Response(status=status.HTTP_400_BAD_REQUEST)
+        users = User.objects.filter(Q(id=coach_id, is_staff=True) | Q(id=athlete_id, is_staff=False))
 
         coach = get_object_or_404(users, id=coach_id, is_staff=True)
 
