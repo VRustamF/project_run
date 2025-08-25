@@ -37,10 +37,9 @@ class UserSerializer(serializers.ModelSerializer):
         else: return 'athlete'
 
     def get_rating(self, obj):
-        ratings = Subscribe.objects.filter(coach=obj)
-        if ratings:
-            return ratings.aggregate(avg_rating=Avg('rating'))['avg_rating']
-        return 0
+        rating = Subscribe.objects.filter(coach=obj).aggregate(avg_rating=Avg('rating'))['avg_rating']
+        return rating
+
 
 
 class AthleteInfoSerializer(serializers.ModelSerializer):
