@@ -329,7 +329,7 @@ class RateCoachAPIView(APIView):
 
         try:
             coach = users.get(id=coach_id, is_staff=True)
-            athlete = users.objects.get(id=athlete_id, is_staff=False)
+            athlete = users.get(id=athlete_id, is_staff=False)
         except User.DoesNotExist:
             return Response(
                 {"error": "Coach or athlete not found or invalid roles"},
