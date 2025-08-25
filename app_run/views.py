@@ -328,7 +328,7 @@ class RateCoachAPIView(APIView):
         rating = request.data.get('rating')
 
         if users.filter(id=coach_id, is_staff=True).exists() and users.filter(id=athlete_id, is_staff=False).exists():
-            subscribe = subscribes.filter(athlete=athlete_id, coach=coach_id).exists()
+            subscribe = subscribes.filter(athlete=athlete_id, coach=coach_id).first()
             if subscribe or 0 < rating <= 5:
                 subscribe.rating = rating
             else:
