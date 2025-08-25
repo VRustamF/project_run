@@ -331,6 +331,7 @@ class RateCoachAPIView(APIView):
             subscribe = subscribes.filter(athlete=athlete_id, coach=coach_id).first()
             if subscribe or 0 < rating <= 5:
                 subscribe.rating = rating
+                return Response(status=status.HTTP_200_OK)
             else:
                 return Response(status=status.HTTP_400_BAD_REQUEST)
         else:
