@@ -359,9 +359,6 @@ class AnalyticsAPIView(APIView):
             )
         )
 
-        if not athletes:
-            return Response(data={}, status=status.HTTP_200_OK)
-
         max_values = athletes.aggregate(
             longest_run_value=Max('longest_run'),
             total_run_value=Max('total_distance'),
@@ -369,6 +366,10 @@ class AnalyticsAPIView(APIView):
         )
 
         longest = athletes.filter(longest_run=max_values['longest_run_value']).first()
+
+        if not longest:
+            return Response(data={}, status=status.HTTP_200_OK)
+
         total = athletes.filter(total_distance=max_values['total_run_value']).first()
         fastest = athletes.filter(avg_speed=max_values['speed_avg_value']).first()
 
