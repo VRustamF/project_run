@@ -1,4 +1,3 @@
-from openpyxl.styles.builtins import total
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework.filters import SearchFilter, OrderingFilter
@@ -14,8 +13,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 
 from .serializers import (
     RunSerializer, UserSerializer, AthleteInfoSerializer, ChallengeSerializer, PositionSerializer,
-    CollectibleItemSerializer, SubscribeSerializer, AthletesSubscriptionsSerializer, CoachFollowersSerializer,
-    AnalyticsSerializer
+    CollectibleItemSerializer, SubscribeSerializer, AthletesSubscriptionsSerializer, CoachFollowersSerializer
 )
 from .models import Run, User, AthleteInfo, Challenge, Position, CollectibleItem, Subscribe
 
