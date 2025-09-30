@@ -1,3 +1,4 @@
+from openpyxl.styles.builtins import total
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework.filters import SearchFilter, OrderingFilter
@@ -11,9 +12,11 @@ from django.shortcuts import get_object_or_404
 
 from django_filters.rest_framework import DjangoFilterBackend
 
-from .serializers import (RunSerializer, UserSerializer, AthleteInfoSerializer, ChallengeSerializer, PositionSerializer,
-                          CollectibleItemSerializer, SubscribeSerializer,
-                          AthletesSubscriptionsSerializer, CoachFollowersSerializer)
+from .serializers import (
+    RunSerializer, UserSerializer, AthleteInfoSerializer, ChallengeSerializer, PositionSerializer,
+    CollectibleItemSerializer, SubscribeSerializer, AthletesSubscriptionsSerializer, CoachFollowersSerializer,
+    AnalyticsSerializer
+)
 from .models import Run, User, AthleteInfo, Challenge, Position, CollectibleItem, Subscribe
 
 from haversine import haversine, Unit
@@ -344,3 +347,40 @@ class RateCoachAPIView(APIView):
             return Response(status=status.HTTP_200_OK)
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+class AnalyticsAPIView(APIView):
+
+    def get(self, request, coach_id):
+        athletes = (
+            User.objects.filter(athlete__coach_id=coach_id)
+            .annotate(
+                longest_run=Max('runs__distance'),
+                total_distance=Sum('runs__distance'),
+                avg_speed=Avg('runs__speed')
+            )
+        )
+
+        if not athletes.exists():
+            return Response(data={}, status=status.HTTP_200_OK)
+
+        longest_run_value = athletes.aggregate(Max('longest_run'))['longest_run__max']
+        total_run_value = athletes.aggregate(Max('total_distance'))['total_distance__max']
+        speed_avg_value = athletes.aggregate(Max('avg_speed'))['avg_speed__max']
+
+        longest = athletes.filter(longest_run=longest_run_value).first()
+        total = athletes.filter(total_distance=total_run_value).first()
+        fastest = athletes.filter(avg_speed=speed_avg_value).first()
+
+        analytics_data = {
+            'longest_run_user': longest.id if longest else None,
+            'longest_run_value': longest_run_value,
+
+            'total_run_user': total.id if total else None,
+            'total_run_value': total_run_value,
+
+            'speed_avg_user': fastest.id if fastest else None,
+            'speed_avg_value': speed_avg_value,
+        }
+
+        return Response(data=analytics_data, status=status.HTTP_200_OK)

@@ -21,7 +21,7 @@ from django.urls import path, include
 
 from app_run.views import (company_details, RunViewSet, UserViewSet, StopAPIView, StartAPIView, AthleteInfoAPIView,
                            ChallengesViewSet, PositionViewSet, CollectibleItemViewSet, CollectibleItemAPIView,
-                           SubscribeAPIView, ChallengesSummaryViewSet, RateCoachAPIView)
+                           SubscribeAPIView, ChallengesSummaryViewSet, RateCoachAPIView, AnalyticsAPIView)
 
 from debug_toolbar.toolbar import debug_toolbar_urls
 
@@ -42,6 +42,7 @@ urlpatterns = [
     path('api/athlete_info/<int:user_id>/', AthleteInfoAPIView.as_view(), name='athlete_info'),
     path('api/upload_file/', CollectibleItemAPIView.as_view(), name='upload_collectible_file'),
     path('api/subscribe_to_coach/<int:coach_id>/', SubscribeAPIView.as_view(), name='subscribe_to_coach'),
-    path('api/rate_coach/<int:coach_id>/', RateCoachAPIView.as_view(), name='rate_coach')
+    path('api/rate_coach/<int:coach_id>/', RateCoachAPIView.as_view(), name='rate_coach'),
+    path('api/analytics_for_coach/<int:coach_id>/', AnalyticsAPIView.as_view(), name='analytics_for_coach')
 ] + debug_toolbar_urls()
 
