@@ -359,26 +359,28 @@ class AnalyticsAPIView(APIView):
             )
         )
 
-        if not athletes.exists():
+        if not athletes:
             return Response(data={}, status=status.HTTP_200_OK)
 
-        longest_run_value = athletes.aggregate(Max('longest_run'))['longest_run__max']
-        total_run_value = athletes.aggregate(Max('total_distance'))['total_distance__max']
-        speed_avg_value = athletes.aggregate(Max('avg_speed'))['avg_speed__max']
+        max_values = athletes.aggregate(
+            longest_run_value=Max('longest_run'),
+            total_run_value=Max('total_distance'),
+            speed_avg_value=Max('avg_speed')
+        )
 
-        longest = athletes.filter(longest_run=longest_run_value).first()
-        total = athletes.filter(total_distance=total_run_value).first()
-        fastest = athletes.filter(avg_speed=speed_avg_value).first()
+        longest = athletes.filter(longest_run=max_values['longest_run_value']).first()
+        total = athletes.filter(total_distance=max_values['total_run_value']).first()
+        fastest = athletes.filter(avg_speed=max_values['speed_avg_value']).first()
 
         analytics_data = {
             'longest_run_user': longest.id if longest else None,
-            'longest_run_value': longest_run_value,
+            'longest_run_value': max_values['longest_run_value'],
 
             'total_run_user': total.id if total else None,
-            'total_run_value': total_run_value,
+            'total_run_value': max_values['total_run_value'],
 
             'speed_avg_user': fastest.id if fastest else None,
-            'speed_avg_value': speed_avg_value,
+            'speed_avg_value': max_values['speed_avg_value']
         }
 
         return Response(data=analytics_data, status=status.HTTP_200_OK)
